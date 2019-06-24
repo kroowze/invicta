@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from time import sleep
+import datetime
 from os import system
 
 f = open("token.txt")
