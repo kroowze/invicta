@@ -7,6 +7,9 @@ from os import system
 f = open("token.txt")
 TOKEN = f.readline().strip()
 
+x = open("list.txt")
+LIST = x.readline().strip()
+
 client = commands.Bot(command_prefix = "i!")
 
 extensions = ["modules.moderation", "modules.automod", "modules.events", "modules.fun"]
@@ -14,7 +17,10 @@ extensions = ["modules.moderation", "modules.automod", "modules.events", "module
 bot_owners = [225057590697132032, 384116325699682315]
 
 if TOKEN == "":
-    print("No token could be found, please set one in the token.txt file.")
+    print("[WARNING] No token could be found, please set one in the token.txt file.")
+
+if LIST == "":
+    print("[INFO] No words are set in the blacklist. If you wish to use it, please set some in the list.txt file.")
 
 
 @client.event

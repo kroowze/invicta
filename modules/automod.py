@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from os import system
 from os import popen
+import asyncio
 
 
 class AutoMod(commands.Cog):
@@ -14,12 +15,19 @@ class AutoMod(commands.Cog):
         # todo: embeds
         server = message.guild
         author = message.author
-        flag = str(popen("Java -jar JHandler.jar -t " + message.content).read())
-        if flag.startswith("1"):
-            for channel in server.channels:
-                if channel.name == "automod":
-                    await channel.send("Message sent by <@" + str(author.id) + "> deleted.\nContent: " + str(message.content))
-            await message.delete()
+        content = message.content
+        content = content.replace("|", "i")
+        content = content.replace(":", "")
+        content = content.replace("<a", "")
+        content = content.replace("<", "")
+        content = content.replace(">", "")
+        if not message.author.bot:
+            flag = str(popen("Java -jar JHandler.jar -t " + content).read())
+            if flag.startswith("1"):
+                for channel in server.channels:
+                    if channel.name == "automod":
+                        await channel.send("Message sent by <@" + str(author.id) + "> deleted.\nContent: " + str(content))
+                await message.delete()
 
     @commands.Cog.listener()
     async def on_message_edit(self, s, message):
@@ -36,18 +44,17 @@ class AutoMod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        # todo: embeds
         b = before.display_name
         a = after.display_name
         server = after.guild
-        memb = server.get_member(after.id)
         if a is not b:
             flag = str(popen("Java -jar JHandler.jar -t " + a).read())
             if flag.startswith("1"):
                 for channel in server.channels:
                     if channel.name == "automod":
-                        await memb.edit(nick="i!i")
                         await channel.send("User " + "<@" + str(before.id)+"> : " + b + " to " + a)
+
+
 
 
 

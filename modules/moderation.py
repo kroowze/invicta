@@ -3,7 +3,8 @@ from discord.ext import commands
 from time import sleep
 import os
 import asyncio
-import datetime
+from datetime import datetime
+from datetime import timedelta
 from tinydb import TinyDB
 from tinydb import Query
 
@@ -103,6 +104,76 @@ class Moderation(commands.Cog):
             if channel.name == "reports":
                 await channel.send(reportmsg + "\n\n sent by: " + "<@" + str(author.id) + ">.")
         await author.send("**Your report has been successfully sent to the moderators of " + server.name + "!**")
+
+    @commands.command(pass_context=True)
+    @commands.has_permissions(manage_nicknames=True)
+    async def changenick(self, ctx, id, newnick):
+        guild = ctx.message.guild
+        if id[0] == "<":
+            id = id.replace("<", "")
+            id = id.replace(">", "")
+            id = id.replace("@", "")
+            id = id.replace("!", "")
+            print(id)
+        member = guild.get_member(int(id))
+        await member.edit(nick=newnick)
+
+    @commands.command(pass_context=True)
+    @commands.has_permissions(manage_messages=True)
+    async def mute(self, ctx, *options):
+        now = datetime.now()
+        print(options)
+        mutedrole = discord.utils.get(ctx.guild.roles, name="Muted")
+        channel = ctx.message.channel
+        author = ctx.message.author
+        newtime = datetime.now()
+        server = ctx.message.guild
+        id = 0
+        optioncount = 0
+        for x in options:
+            optioncount += 1
+        if options[0].startswith("<"):
+            id = options[0]
+            id = id.replace("<", "")
+            id = id.replace(">", "")
+            id = id.replace("@", "")
+            id = id.replace("!", "")
+        else:
+            await channel.send("Could not find that user.")
+        member = server.get_member(int(id))
+        print(optioncount)
+        if optioncount > 1:
+            if options[1][0].isdigit():
+                timeformat = options[1]
+                rawtime = options[1]
+                timeformat = timeformat.replace("0", "")
+                timeformat = timeformat.replace("1", "")
+                timeformat = timeformat.replace("2", "")
+                timeformat = timeformat.replace("3", "")
+                timeformat = timeformat.replace("4", "")
+                timeformat = timeformat.replace("5", "")
+                timeformat = timeformat.replace("6", "")
+                timeformat = timeformat.replace("7", "")
+                timeformat = timeformat.replace("8", "")
+                timeformat = timeformat.replace("9", "")
+                if timeformat == "s":
+                    rawtime = rawtime.replace("s", "")
+                    rawtime = int(rawtime)
+                    newtime = datetime.now() + timedelta(seconds=rawtime)
+                if timeformat == "m":
+                    rawtime = rawtime.replace("m", "")
+                    rawtime = int(rawtime)
+                    newtime = datetime.now() + timedelta(minutes=rawtime)
+                if timeformat == "d":
+                    rawtime = rawtime.replace("d", "")
+                    rawtime = int(rawtime)
+                    newtime = datetime.now() + timedelta(days=rawtime)
+        else:
+            await member.add_roles(mutedrole)
+            for channel in server.channels:
+                if channel.name == "moderation":
+                    await channel.send("Muted " + member.name + "#" + member.discriminator + "\n\nReason: ")
+
 
 
 def setup(client):
